@@ -77,4 +77,3 @@ local deploy_pipeline = {
 };
 
 std.manifestYamlDoc(deploy_pipeline)
-
