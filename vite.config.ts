@@ -7,7 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // 載入環境變數
-  const env = loadEnv(mode, process.cwd(), '')
+  const env = loadEnv(mode, resolve(__dirname, 'env'), '')
 
   return {
   // 將環境變數注入到客戶端代碼

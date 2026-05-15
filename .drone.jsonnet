@@ -4,8 +4,8 @@
 
 local VALUES = {
   PROJECT_NAME:             "heron",
-  DOCKERHUB_USER:           "popopopony",
-  DOCKERHUB_IMAGE:          "popopopony/heron",
+  DOCKERHUB_USER:           "lislab3morris",
+  DOCKERHUB_IMAGE:          "lislab3morris/heron",
   K8S_DEPLOYMENT_NAME:      "heron",
   K8S_DEPLOYMENT_NAMESPACE: "heron",
   CONTAINER_NAME:           "heron",
@@ -15,11 +15,11 @@ local VALUES = {
 
 
 local SECRET = {
-  K8S_SERVER:           { from_secret: "K8S_SERVER" },
-  K8S_TOKEN:            { from_secret: "K8S_TOKEN" },
-  K8S_CA:               { from_secret: "K8S_CA" },
-  DOCKER_USERNAME:      { from_secret: "DOCKER_USERNAME_pony" },
-  DOCKER_PASSWORD:      { from_secret: "DOCKER_PASSWORD_pony" },
+  K8S_SERVER:           { from_secret: "k8s-server" },
+  K8S_TOKEN:            { from_secret: "k8s-token" },
+  K8S_CA:               { from_secret: "k8s-ca" },
+  DOCKER_USERNAME:      { from_secret: "docker-username" },
+  DOCKER_PASSWORD:      { from_secret: "docker-password" },
 };
 
 
@@ -44,8 +44,9 @@ local deploy_pipeline = {
         tags: ["latest", "${DRONE_COMMIT_SHA}"],
         username: SECRET.DOCKER_USERNAME,
         password: SECRET.DOCKER_PASSWORD,
+        cache_from: [VALUES.DOCKERHUB_IMAGE + ":latest"],
         build_args: [
-          "WALRUS_API_BASE_URL=https://lab3-walrus.ddns.net",
+          "WALRUS_API_BASE_URL=https://walrus.lab3.website",
           "ENV=staging",
           "APP_TITLE=Heron"
         ],
