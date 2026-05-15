@@ -1,25 +1,172 @@
-# Vue 3 Frontend Application
+<div align="center">
 
-一個現代化的 Vue 3 前端應用程式，使用 TypeScript、Tailwind CSS 和 Docker 部署。
+# 🎵 Heron
 
-## 🚀 特色功能
+**音樂熟悉度播放清單實驗平台**
 
-- ⚡ **Vue 3** - 使用 Composition API
-- 🔷 **TypeScript** - 完整的型別支援
-- 🎨 **Tailwind CSS** - Utility-first CSS 框架
-- 📦 **Pinia** - 現代化狀態管理
-- 🛣️ **Vue Router** - 單頁應用路由
-- 🔧 **Vite** - 快速的建構工具
-- 🐳 **Docker** - 容器化部署
-- 🔍 **ESLint + Prettier** - 程式碼品質保證
+*A Spotify-powered familiarity playlist experiment system*
 
-## 📋 系統需求
+[![Vue 3](https://img.shields.io/badge/Vue-3.3-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-4.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-- Node.js 18.0+
-- npm 或 yarn
-- Docker (用於容器化部署)
+</div>
 
-## 🛠️ 安裝與設定
+---
+
+## 📖 專案簡介
+
+**Heron** 是一套以 Spotify 為核心的音樂熟悉度實驗系統，用於研究使用者在不同熟悉程度播放清單下的聆聽行為與滿意度。系統透過 Spotify Web Playback SDK 進行即時播放控制，並整合後端 Walrus API 管理實驗資料。
+
+---
+
+## ✨ 功能特色
+
+| 功能 | 說明 |
+|------|------|
+| 🎵 **Spotify 整合** | 透過 Web Playback SDK 進行無縫播放控制 |
+| 🧪 **實驗流程管理** | 支援多階段實驗設計（Stage 1 / Stage 2） |
+| 📊 **滿意度問卷** | 播放後即時收集使用者回饋 |
+| 🌐 **OAuth 認證** | Spotify OAuth 2.0 授權流程 |
+| 💾 **本地狀態持久化** | 使用 localStorage 保存實驗進度 |
+| 📱 **響應式設計** | 支援桌面與行動裝置 |
+| 🐳 **容器化部署** | Docker + Nginx 生產環境部署 |
+| 🚀 **CI/CD 自動化** | Drone CI 自動建置並部署至 Kubernetes |
+
+---
+
+## 🗺️ 實驗流程
+
+```mermaid
+flowchart TD
+    A([🏠 Welcome]) --> B{Spotify 授權?}
+    B -- 未授權 --> C[SpotifyPreAuth\n取得授權]
+    C --> D[SpotifyCallback\n處理回調]
+    D --> E
+    B -- 已授權 --> E[ExperimentStart\n階段一說明]
+    E --> F[PlaylistPlayer\n播放清單]
+    F --> G[PlaylistSatisfaction\n滿意度評分]
+    G --> H{實驗完成?}
+    H -- 繼續下一階段 --> I[ExperimentStart2\n階段二說明]
+    I --> F
+    H -- 全部完成 --> J([🎉 ThankYou])
+
+    style A fill:#1DB954,color:#fff,stroke:none
+    style J fill:#1DB954,color:#fff,stroke:none
+    style C fill:#191414,color:#fff,stroke:#1DB954
+    style D fill:#191414,color:#fff,stroke:#1DB954
+    style F fill:#535353,color:#fff,stroke:none
+```
+
+---
+
+## 🏗️ 系統架構
+
+```mermaid
+graph TB
+    subgraph Frontend ["🖥️ Frontend (Heron)"]
+        direction TB
+        Vue["Vue 3 + TypeScript"]
+        Pinia["Pinia Store"]
+        Router["Vue Router"]
+        SDK["Spotify Web SDK"]
+    end
+
+    subgraph Backend ["⚙️ Backend (Walrus API)"]
+        Auth["認證服務"]
+        Token["Token 管理"]
+        Experiment["實驗資料"]
+    end
+
+    subgraph Spotify ["🎵 Spotify"]
+        OAuth["OAuth 2.0"]
+        Playback["Playback API"]
+    end
+
+    subgraph Deploy ["🚀 部署"]
+        Drone["Drone CI"]
+        Registry["Docker Registry\nlislab3morris/heron"]
+        K8s["Kubernetes\nheron namespace"]
+    end
+
+    Vue --> Pinia
+    Vue --> Router
+    Vue --> SDK
+    SDK --> Playback
+    Vue --> Auth
+    Auth --> Token
+    Token --> Experiment
+    Vue --> OAuth
+
+    Drone --> Registry
+    Registry --> K8s
+
+    style Frontend fill:#4FC08D22,stroke:#4FC08D
+    style Backend fill:#3178C622,stroke:#3178C6
+    style Spotify fill:#1DB95422,stroke:#1DB954
+    style Deploy fill:#2496ED22,stroke:#2496ED
+```
+
+---
+
+## 📁 專案結構
+
+```
+heron/
+├── src/
+│   ├── components/
+│   │   ├── FeatureCard.vue       # 功能卡片元件
+│   │   └── ParticleBackground.vue # Three.js 粒子背景
+│   ├── views/
+│   │   ├── Welcome.vue           # 歡迎頁
+│   │   ├── SpotifyPreAuth.vue    # Spotify 授權前置頁
+│   │   ├── SpotifyCallback.vue   # OAuth 回調處理
+│   │   ├── SpotifyIframe.vue     # Spotify 嵌入式播放器
+│   │   ├── ExperimentStart.vue   # 實驗階段一說明
+│   │   ├── ExperimentStart2.vue  # 實驗階段二說明
+│   │   ├── PlaylistPlayer.vue    # 播放清單播放器
+│   │   ├── PlaylistSatisfaction.vue # 滿意度評分
+│   │   └── ThankYou.vue          # 感謝頁
+│   ├── stores/
+│   │   ├── experiment.ts         # 實驗階段狀態管理
+│   │   ├── spotifyPlayer.ts      # Spotify 播放器單例
+│   │   └── counter.ts            # 計數器 Store
+│   ├── services/
+│   │   └── api.ts                # API 服務層
+│   ├── utils/
+│   │   ├── api.ts                # HTTP 請求工具
+│   │   ├── userStorage.ts        # LocalStorage 管理
+│   │   └── index.ts              # 通用工具函數
+│   ├── types/
+│   │   └── index.ts              # TypeScript 型別定義
+│   ├── config/
+│   │   └── environment.ts        # 環境設定
+│   ├── router/
+│   │   └── index.ts              # 路由配置
+│   ├── App.vue                   # 根元件
+│   ├── main.ts                   # 應用程式入口
+│   └── style.css                 # 全域樣式
+├── env/
+│   ├── .env.example              # 環境變數範例
+│   └── .env.local                # 本地環境設定
+├── Dockerfile                    # 多階段建構配置
+├── nginx.conf                    # Nginx 設定
+├── .drone.yml                    # Drone CI/CD 流程
+└── vite.config.ts                # Vite 建構配置
+```
+
+---
+
+## 🚀 快速開始
+
+### 系統需求
+
+- **Node.js** 18.0+
+- **npm** 9.0+
+- **Docker**（用於容器化部署）
+- **Spotify Premium 帳號**（使用 Web Playback SDK 需要）
 
 ### 1. 安裝依賴
 
@@ -29,167 +176,188 @@ npm install
 
 ### 2. 環境變數設定
 
-根據你的環境需求，複製對應的環境變數檔案：
-
 ```bash
-# Local 環境
-cp env.local .env
-
-# Staging 環境  
-cp env.staging .env
-
-# 或使用範例檔案
-cp env.example .env
+cp env/.env.example env/.env.local
 ```
 
-編輯對應的 `.env` 檔案，設定你的環境變數。
+編輯 `env/.env.local`：
+
+```env
+WALRUS_API_BASE_URL=https://your-walrus-api.example.com
+ENV=local
+APP_TITLE=Heron
+```
 
 ### 3. 啟動開發伺服器
 
 ```bash
-# 預設開發模式
-npm run dev
-
 # Local 環境
 npm run dev:local
 
-# Staging 環境
-npm run dev:staging
+# 預設開發模式
+npm run dev
 ```
 
-應用程式將在 http://localhost:3000 啟動。
+應用程式將在 `http://localhost:3000` 啟動。
 
-## 🐳 Docker 部署
-
-### 建構並啟動容器
-
-```bash
-# 預設開發環境
-docker-compose up --build -d
-
-# Local 環境 (http://localhost:3000)
-docker-compose -f docker-compose.local.yml up --build -d
-
-# Staging 環境 (http://localhost:8080)
-docker-compose -f docker-compose.staging.yml up --build -d
-
-# 查看執行狀態
-docker-compose ps
-
-# 查看日誌
-docker-compose logs -f frontend
-```
-
-### 停止容器
-
-```bash
-docker-compose down
-```
+---
 
 ## 📝 可用指令
 
 ```bash
-# 開發模式
-npm run dev              # 預設開發模式
-npm run dev:local        # Local 環境
-npm run dev:staging      # Staging 環境
+# 開發
+npm run dev          # 預設開發模式
+npm run dev:local    # Local 環境
 
-# 建構版本
-npm run build            # 預設建構
-npm run build:local      # Local 環境建構
-npm run build:staging    # Staging 環境建構
+# 建構
+npm run build        # 生產建構
+npm run build:local  # Local 環境建構
 
-# 預覽建構版本
-npm run preview
+# 品質工具
+npm run lint         # ESLint 檢查
+npm run format       # Prettier 格式化
 
-# 程式碼檢查
-npm run lint
-
-# 格式化程式碼
-npm run format
+# 預覽
+npm run preview      # 預覽建構結果
 ```
 
-## 📁 專案結構
+---
 
-```
-src/
-├── components/     # 可重用組件
-├── views/          # 頁面組件
-├── router/         # 路由配置
-├── stores/         # Pinia 狀態管理
-├── types/          # TypeScript 型別定義
-├── utils/          # 工具函數
-│   ├── api.ts      # API 請求工具
-│   └── index.ts    # 通用工具函數
-├── App.vue         # 根組件
-├── main.ts         # 應用程式入口
-└── style.css       # 全域樣式
+## 🐳 Docker 部署
+
+### 本地建構
+
+```bash
+docker build \
+  --build-arg WALRUS_API_BASE_URL=https://your-api.example.com \
+  --build-arg ENV=staging \
+  --build-arg APP_TITLE=Heron \
+  -t heron:latest .
 ```
 
-## 🔧 配置檔案
+### 啟動容器
 
-- `vite.config.ts` - Vite 建構配置
-- `tailwind.config.js` - Tailwind CSS 配置
-- `tsconfig.json` - TypeScript 配置
-- `.eslintrc.cjs` - ESLint 配置
-- `.prettierrc` - Prettier 配置
-- `docker-compose.yml` - Docker Compose 配置
-- `Dockerfile` - Docker 建構配置
-
-## 🌐 API 整合
-
-此專案已預配置 API 請求工具，位於 `src/utils/api.ts`。
-
-### 使用範例
-
-```typescript
-import { apiGet, apiPost } from '@/utils/api'
-
-// GET 請求
-const fetchUsers = async () => {
-  const response = await apiGet('/users')
-  return response.data
-}
-
-// POST 請求
-const createUser = async (userData: any) => {
-  const response = await apiPost('/users', userData)
-  return response.data
-}
+```bash
+docker run -d -p 80:80 heron:latest
 ```
 
-## 🎨 樣式系統
+### Docker 多階段建構流程
 
-使用 Tailwind CSS 進行樣式設計，並在 `src/style.css` 中定義了一些常用的組件類別：
+```mermaid
+graph LR
+    subgraph Stage1 ["Stage 1: Builder (node:18-alpine)"]
+        S1A[安裝依賴\nnpm ci] --> S1B[複製原始碼]
+        S1B --> S1C[npm run build\n產出 /app/dist]
+    end
 
-- `.btn` - 基礎按鈕樣式
-- `.btn-primary` - 主要按鈕樣式
-- `.btn-secondary` - 次要按鈕樣式
+    subgraph Stage2 ["Stage 2: Production (nginx:alpine)"]
+        S2A[複製 nginx.conf]
+        S2B[複製 /app/dist\n→ /usr/share/nginx/html]
+        S2C[EXPOSE 80\n啟動 Nginx]
+    end
 
-## 📱 響應式設計
+    S1C --> S2B
+    S2A --> S2C
+    S2B --> S2C
 
-專案採用行動優先的響應式設計，支援各種螢幕尺寸。
+    style Stage1 fill:#339af022,stroke:#339af0
+    style Stage2 fill:#51cf6622,stroke:#51cf66
+```
 
-## 🚀 部署到生產環境
+---
 
-1. 建構生產版本：
-   ```bash
-   npm run build
-   ```
+## 🔄 CI/CD 流程
 
-2. 使用 Docker 部署：
-   ```bash
-   docker-compose -f docker-compose.yml up -d
-   ```
+Drone CI 在推送至 `master` 分支時自動觸發：
 
-## 🤝 貢獻指南
+```mermaid
+sequenceDiagram
+    participant Dev as 開發者
+    participant Git as GitHub
+    participant Drone as Drone CI
+    participant Registry as Docker Registry<br/>(lislab3morris/heron)
+    participant K8s as Kubernetes<br/>(heron namespace)
 
-1. Fork 此專案
-2. 建立功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交變更 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 開啟 Pull Request
+    Dev->>Git: git push origin master
+    Git->>Drone: webhook 觸發
+    Drone->>Drone: 建置 Docker Image<br/>(含 BuildKit 快取)
+    Drone->>Registry: push :latest + :COMMIT_SHA
+    Drone->>K8s: kubectl set image<br/>heron=lislab3morris/heron:SHA
+    K8s->>K8s: Rolling Update
+    K8s-->>Drone: rollout status ✅
+    Drone-->>Dev: 部署成功通知
+```
+
+---
+
+## 🔧 狀態管理
+
+### Pinia Stores 架構
+
+```mermaid
+graph TB
+    subgraph Stores ["Pinia Stores"]
+        ES["experimentStore\n- currentStage: 1 | 2\n- setStage()\n- nextStage()\n- resetStage()"]
+        SP["spotifyPlayerStore\n- spotifyPlayer\n- deviceId\n- isPlayerReady\n- initializePlayer()\n- disconnectPlayer()"]
+        CO["counterStore\n- count\n- increment()"]
+    end
+
+    subgraph Views ["Views"]
+        PP["PlaylistPlayer"]
+        PS["PlaylistSatisfaction"]
+        ES2["ExperimentStart2"]
+    end
+
+    PP --> SP
+    PP --> ES
+    PS --> ES
+    ES2 --> ES
+
+    SP -.-> |localStorage| LS[("💾 Local\nStorage")]
+    ES -.-> |experimentStage| LS
+
+    style ES fill:#646CFF22,stroke:#646CFF
+    style SP fill:#1DB95422,stroke:#1DB954
+    style CO fill:#FF636322,stroke:#FF6363
+```
+
+---
+
+## 🌐 路由結構
+
+| 路徑 | 元件 | 說明 |
+|------|------|------|
+| `/` | → `/welcome` | 自動重導向 |
+| `/welcome` | `Welcome` | 歡迎頁面 |
+| `/spotify-pre-auth` | `SpotifyPreAuth` | Spotify 授權前置 |
+| `/spotify-callback` | `SpotifyCallback` | OAuth 回調處理 |
+| `/spotify-iframe` | `SpotifyIframe` | 嵌入式播放器 |
+| `/experiment-start` | `ExperimentStart` | 實驗階段一說明 |
+| `/experiment-start-2` | `ExperimentStart2` | 實驗階段二說明 |
+| `/playlist-player` | `PlaylistPlayer` | 播放清單播放器 |
+| `/playlist-satisfaction` | `PlaylistSatisfaction` | 滿意度評分頁 |
+| `/thank-you` | `ThankYou` | 實驗完成感謝頁 |
+
+---
+
+## 🔒 環境變數
+
+| 變數名稱 | 說明 | 範例 |
+|----------|------|------|
+| `WALRUS_API_BASE_URL` | Walrus 後端 API 位址 | `https://walrus.lab3.website` |
+| `ENV` | 執行環境 | `local` / `staging` |
+| `APP_TITLE` | 應用程式標題 | `Heron` |
+
+---
 
 ## 📄 授權
 
-此專案使用 MIT 授權 - 查看 [LICENSE](LICENSE) 檔案了解詳情。
+此專案使用 **MIT 授權** — 詳見 [LICENSE](LICENSE) 檔案。
+
+---
+
+<div align="center">
+
+Made with ❤️ by **Lab3-Spotify Team**
+
+</div>
