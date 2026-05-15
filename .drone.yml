@@ -41,3 +41,33 @@
   "event":
   - "push"
 "type": "kubernetes"
+---
+"get":
+  "name": "value"
+  "path": "k8s-server"
+"kind": "secret"
+"name": "k8s-server"
+---
+"get":
+  "name": "value"
+  "path": "k8s-token"
+"kind": "secret"
+"name": "k8s-token"
+---
+"get":
+  "name": "value"
+  "path": "k8s-ca"
+"kind": "secret"
+"name": "k8s-ca"
+---
+"get":
+  "name": "value"
+  "path": "docker-username"
+"kind": "secret"
+"name": "docker-username"
+---
+"get":
+  "name": "value"
+  "path": "docker-password"
+"kind": "secret"
+"name": "docker-password"

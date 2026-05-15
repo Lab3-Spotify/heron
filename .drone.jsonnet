@@ -22,6 +22,12 @@ local SECRET = {
   DOCKER_PASSWORD:      { from_secret: "docker-password" },
 };
 
+local secret_k8s_server =    { kind: "secret", name: "k8s-server",      get: { path: "k8s-server",      name: "value" } };
+local secret_k8s_token =     { kind: "secret", name: "k8s-token",       get: { path: "k8s-token",       name: "value" } };
+local secret_k8s_ca =        { kind: "secret", name: "k8s-ca",          get: { path: "k8s-ca",          name: "value" } };
+local secret_docker_user =   { kind: "secret", name: "docker-username", get: { path: "docker-username", name: "value" } };
+local secret_docker_pass =   { kind: "secret", name: "docker-password", get: { path: "docker-password", name: "value" } };
+
 
 local deploy_pipeline = {
   kind: "pipeline",
@@ -45,10 +51,12 @@ local deploy_pipeline = {
         username: SECRET.DOCKER_USERNAME,
         password: SECRET.DOCKER_PASSWORD,
         cache_from: [VALUES.DOCKERHUB_IMAGE + ":latest"],
+        buildkit: true,
         build_args: [
           "WALRUS_API_BASE_URL=https://walrus.lab3.website",
           "ENV=staging",
-          "APP_TITLE=Heron"
+          "APP_TITLE=Heron",
+          "BUILDKIT_INLINE_CACHE=1"
         ],
       },
     },
@@ -77,4 +85,7 @@ local deploy_pipeline = {
   ],
 };
 
-std.manifestYamlDoc(deploy_pipeline)
+std.join("\n---\n", [
+  std.manifestYamlDoc(p)
+  for p in [deploy_pipeline, secret_k8s_server, secret_k8s_token, secret_k8s_ca, secret_docker_user, secret_docker_pass]
+])
