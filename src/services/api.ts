@@ -20,8 +20,8 @@ export const clearTokens = (): void => {
   sessionStorage.removeItem('refresh_token')
 }
 
-export const clearSpotifyCache = (): void => {
-  sessionStorage.removeItem('spotifyAccessToken')
+export const clearAllCache = (): void => {
+  sessionStorage.clear()
   localStorage.removeItem('trackInfoCache_v3')
 }
 
@@ -121,7 +121,7 @@ const apiRequest = async <T>(
     console.log('Response data:', data)
 
     if (!skipReauth && data.code === RESPONSE_CODE.REAUTH_REQUIRED) {
-      await redirectToSpotifyReauth()
+      redirectToSpotifyReauth()
     }
 
     return data
@@ -154,12 +154,9 @@ export const getSpotifyToken = async (): Promise<ApiResponse<SpotifyTokenRespons
   })
 }
 
-export const redirectToSpotifyReauth = async (): Promise<void> => {
-  clearSpotifyCache()
-  const authResponse = await getSpotifyAuthUrl()
-  if (authResponse.data?.spotify_authorize_url) {
-    window.location.href = authResponse.data.spotify_authorize_url
-  }
+export const redirectToSpotifyReauth = (): void => {
+  clearAllCache()
+  window.location.href = '/spotify-pre-auth'
 }
 
 // 處理 Spotify OAuth 授權碼 API

@@ -947,7 +947,7 @@ const handleEmailLogin = async () => {
 
         if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
           console.warn('Reauth required, redirecting to Spotify OAuth...')
-          await redirectToSpotifyReauth()
+          redirectToSpotifyReauth()
           return
         }
 
@@ -1024,7 +1024,7 @@ const verifyAuthStatus = async () => {
 
       if (response.code === RESPONSE_CODE.REAUTH_REQUIRED) {
         console.warn('Reauth required, redirecting to Spotify OAuth...')
-        await redirectToSpotifyReauth()
+        redirectToSpotifyReauth()
         return
       }
 
@@ -1421,7 +1421,7 @@ const checkStepCompletion = async () => {
 
       if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
         console.warn('Reauth required, redirecting to Spotify OAuth...')
-        await redirectToSpotifyReauth()
+        redirectToSpotifyReauth()
         return
       }
 
