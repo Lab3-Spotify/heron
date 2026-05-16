@@ -839,7 +839,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 // import { useRouter } from 'vue-router'
-import { loginUser, getSpotifyAuthUrl, getSpotifyToken, validatePlaylist, importPlaylist, cachePlaylistOrder, getAccessToken, checkPlaylist } from '@/services/api'
+import { loginUser, getSpotifyAuthUrl, getSpotifyToken, validatePlaylist, importPlaylist, cachePlaylistOrder, getAccessToken, checkPlaylist, RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
 import ParticleBackground from '@/components/ParticleBackground.vue'
 import { setCurrentUserEmail, setUserData, getUserData, USER_DATA_KEYS } from '@/utils/userStorage'
 
@@ -945,7 +945,13 @@ const handleEmailLogin = async () => {
         console.log('Checking if Spotify token already exists...')
         const tokenResponse = await getSpotifyToken()
 
-        if (tokenResponse.code === 2000 && tokenResponse.data &&
+        if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+          console.warn('Reauth required, redirecting to Spotify OAuth...')
+          await redirectToSpotifyReauth()
+          return
+        }
+
+        if (tokenResponse.code === RESPONSE_CODE.SUCCESS && tokenResponse.data &&
             (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token)) {
           // 已經有 token，不需要重新授權，直接檢查步驟完成狀態
           console.log('Spotify token already exists, skipping authorization')
@@ -1016,14 +1022,20 @@ const verifyAuthStatus = async () => {
       // 如果沒有 token，調用 API 獲取
       const response = await getSpotifyToken()
 
-      if (response.code === 2000 || response.code === 200) {
+      if (response.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+        console.warn('Reauth required, redirecting to Spotify OAuth...')
+        await redirectToSpotifyReauth()
+        return
+      }
+
+      if (response.code === RESPONSE_CODE.SUCCESS) {
         // 檢查回應中是否有 data 和 access_token
         if (response.data && response.data.access_token && response.data.access_token.trim() !== '') {
           // 成功獲得了有效的 Spotify token，表示授權成功
 
           // 儲存到用戶資料
           setUserData(USER_DATA_KEYS.SPOTIFY_ACCESS_TOKEN, response.data.access_token)
-          
+
           // 強制觸發慶祝效果
           await forceTriggerCelebration()
         } else {
@@ -1406,7 +1418,14 @@ const checkStepCompletion = async () => {
     let hasSpotifyToken = false
     try {
       const tokenResponse = await getSpotifyToken()
-      hasSpotifyToken = !!(tokenResponse.code === 2000 &&
+
+      if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+        console.warn('Reauth required, redirecting to Spotify OAuth...')
+        await redirectToSpotifyReauth()
+        return
+      }
+
+      hasSpotifyToken = !!(tokenResponse.code === RESPONSE_CODE.SUCCESS &&
                         tokenResponse.data &&
                         (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token))
       console.log('Spotify token API check:', tokenResponse, 'hasSpotifyToken:', hasSpotifyToken)

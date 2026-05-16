@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getUserData, setUserData, USER_DATA_KEYS } from '@/utils/userStorage'
+import { RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
 
 export const useSpotifyPlayerStore = defineStore('spotifyPlayer', () => {
   const spotifyPlayer = ref<any>(null)
@@ -51,6 +52,13 @@ export const useSpotifyPlayerStore = defineStore('spotifyPlayer', () => {
       }
 
       const newTokenData = await response.json()
+
+      if (newTokenData.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+        console.warn('[SpotifyStore] Reauth required, redirecting to Spotify OAuth...')
+        await redirectToSpotifyReauth()
+        return false
+      }
+
       const accessToken = newTokenData.data?.access_token || newTokenData.access_token
 
       if (!accessToken) {
