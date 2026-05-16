@@ -559,53 +559,10 @@ const showToast = (message: string, duration: number = 3000, type: 'info' | 'err
   }, duration)
 }
 
-// 生成隨機播放時間區間（單位：毫秒）
-// 最短 5 秒，最長 10 秒的片段
-const generateRandomTimeInterval = () => {
-  const minDuration = 5000 // 5 秒
-  const maxDuration = 10000 // 10 秒
-  // 使用更保守的歌曲長度估計（大多數流行歌曲是 2-4 分鐘）
-  // Old Town Road 只有約 113 秒，所以設定上限為 100 秒比較安全
-  const songMaxLength = 100000 // 假設歌曲最長 100 秒（1分40秒）
-
-  // 隨機生成播放時長（5-10秒）
-  const duration = Math.floor(Math.random() * (maxDuration - minDuration + 1)) + minDuration
-
-  // 隨機生成起始位置（確保不會超出歌曲長度）
-  const maxStartTime = songMaxLength - duration
-  const startTime = Math.floor(Math.random() * maxStartTime)
-
-  return {
-    startTime, // 起始時間（毫秒）
-    endTime: startTime + duration, // 結束時間（毫秒）
-    duration // 播放時長（毫秒）
-  }
-}
 
 // Mock 歌單資料 (後續替換為真實資料)
 // 使用 20 個 Spotify 歌曲 ID，每首歌隨機分配播放時間區間
-const mockPlaylist = ref<Song[]>([
-  { id: '1', name: 'Shape of You', artist: 'Ed Sheeran', spotifyId: '7qiZfU4dY1lWllzX7mPBI3', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '2', name: 'Blinding Lights', artist: 'The Weeknd', spotifyId: '0VjIjW4GlUZAMYd2vXMi3b', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '3', name: 'Watermelon Sugar', artist: 'Harry Styles', spotifyId: '6UelLqGlWMcVH1E5c4H7lY', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '4', name: 'Levitating', artist: 'Dua Lipa', spotifyId: '463CkQjx2Zk1yXoBuierM9', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '5', name: 'Good 4 U', artist: 'Olivia Rodrigo', spotifyId: '4ZtFanR9U6ndgddUvNcjcG', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '6', name: 'As It Was', artist: 'Harry Styles', spotifyId: '4Dvkj6JhhA12EX05fT7y2e', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '7', name: 'Heat Waves', artist: 'Glass Animals', spotifyId: '02MWAaffLxlfxAUY7c5dvx', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '8', name: 'Stay', artist: 'The Kid LAROI, Justin Bieber', spotifyId: '5HCyWlXZPP0y6Gqq8TgA20', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '9', name: 'Industry Baby', artist: 'Lil Nas X, Jack Harlow', spotifyId: '27NovPIUIRrOZoCHxABJwK', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '10', name: 'Bad Guy', artist: 'Billie Eilish', spotifyId: '2Fxmhks0bxGSBdJ92vM42m', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '11', name: 'Dance Monkey', artist: 'Tones and I', spotifyId: '2XU0oxnq2qxCpomAAuJY8K', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '12', name: 'Old Town Road', artist: 'Lil Nas X', spotifyId: '0F7FA14euOIX8KcbEturGH', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '13', name: 'Circles', artist: 'Post Malone', spotifyId: '21jGcNKet2qwijlDFuPiPb', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '14', name: 'Señorita', artist: 'Shawn Mendes, Camila Cabello', spotifyId: '6v3KW9xbzN5yKLt9YKDYA2', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '15', name: 'Uptown Funk', artist: 'Mark Ronson ft. Bruno Mars', spotifyId: '32OlwWuMpZ6b0aN2RZOeMS', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '16', name: 'Despacito', artist: 'Luis Fonsi, Daddy Yankee', spotifyId: '6rPO02ozF3bM7NnOV4h6s2', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '17', name: 'Closer', artist: 'The Chainsmokers, Halsey', spotifyId: '7BKLCZ1jbUBVqRi2FVlTVw', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '18', name: 'Perfect', artist: 'Ed Sheeran', spotifyId: '0tgVpDi06FyKpA1z0VMD4v', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '19', name: 'Someone You Loved', artist: 'Lewis Capaldi', spotifyId: '7qEHsqek33rTcFNT9PFqLf', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() },
-  { id: '20', name: 'Happy', artist: 'Pharrell Williams', spotifyId: '60nZcImufyMA1MKQY3dcCH', rating: null, everListened: null, surpriseRating: null, albumImage: '', ...generateRandomTimeInterval() }
-])
+const mockPlaylist = ref<Song[]>([])
 
 // 計算屬性
 const currentSong = computed(() => mockPlaylist.value[currentSongIndex.value])
@@ -1480,6 +1437,7 @@ const playSpotifyTrack = async (trackId: string, startTime: number = 0, endTime?
           // 播放器真的在播放了
           console.log(`✅ 確認播放已開始！position: ${state.position}ms, startTime: ${startTime}ms`)
           currentSongStarted.value = true
+          spotifyPlayer.value.setVolume(volume.value)
 
           // 清除重試計數
           if (songPlaybackRetryCount.value[currentSongIndex.value] > 0) {
@@ -2151,13 +2109,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load album images:', error)
   }
-
-  // 🔧 測試用：強制設定所有歌曲播放時長為 1 秒
-  mockPlaylist.value.forEach((song) => {
-    song.endTime = song.startTime + 1000 // 1 秒
-    song.duration = 1000
-  })
-  console.log('⚠️ 測試模式：所有歌曲播放時長已強制設為 1 秒')
 
   // 初始化完成
   // 輸出播放時間區間信息
