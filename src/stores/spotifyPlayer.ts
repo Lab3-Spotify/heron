@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getUserData, setUserData, USER_DATA_KEYS } from '@/utils/userStorage'
 import { RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
+import { API_BASE_URL, API_ENDPOINTS } from '@/config/environment'
 
 export const useSpotifyPlayerStore = defineStore('spotifyPlayer', () => {
   const spotifyPlayer = ref<any>(null)
@@ -39,7 +40,7 @@ export const useSpotifyPlayerStore = defineStore('spotifyPlayer', () => {
         return false
       }
 
-      const response = await fetch('http://localhost:8000/api/provider/member/token/spotify/?account_type=proxy_account', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.spotifyToken}?account_type=proxy_account`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${userAccessToken}`
