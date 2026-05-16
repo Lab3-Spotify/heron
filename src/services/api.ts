@@ -15,10 +15,6 @@ export const setTokens = (accessToken: string, refreshToken: string): void => {
   setUserData(USER_DATA_KEYS.REFRESH_TOKEN, refreshToken)
 }
 
-export const clearTokens = (): void => {
-  sessionStorage.removeItem('access_token')
-  sessionStorage.removeItem('refresh_token')
-}
 
 export const clearAllCache = (): void => {
   sessionStorage.clear()
@@ -154,9 +150,10 @@ export const getSpotifyToken = async (): Promise<ApiResponse<SpotifyTokenRespons
   })
 }
 
-export const redirectToSpotifyReauth = (): void => {
+export const redirectToSpotifyReauth = (): never => {
   clearAllCache()
   window.location.href = '/spotify-pre-auth'
+  throw new Error('REAUTH_REDIRECT')
 }
 
 // 處理 Spotify OAuth 授權碼 API
