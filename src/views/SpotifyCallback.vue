@@ -82,7 +82,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getUserData, setUserData, USER_DATA_KEYS } from '@/utils/userStorage'
-import { getSpotifyToken } from '@/services/api'
+import { getSpotifyToken, RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -124,7 +124,13 @@ const handleAuthCallback = async () => {
     try {
       const tokenResponse = await getSpotifyToken()
 
-      if (tokenResponse.code === 2000 && tokenResponse.data &&
+      if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+        console.warn('Reauth required after callback, redirecting to Spotify OAuth...')
+        await redirectToSpotifyReauth()
+        return
+      }
+
+      if (tokenResponse.code === RESPONSE_CODE.SUCCESS && tokenResponse.data &&
           (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token)) {
         // 授權成功，有 token
         authStatus.value = 'success'

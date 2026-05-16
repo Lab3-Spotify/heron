@@ -10,6 +10,8 @@
     - "WALRUS_API_BASE_URL=https://walrus.lab3.website"
     - "ENV=staging"
     - "APP_TITLE=Heron"
+    - "BUILDKIT_INLINE_CACHE=1"
+    "buildkit": true
     "cache_from":
     - "lislab3morris/heron:latest"
     "password":
@@ -24,41 +26,14 @@
   - "kubectl set image deployment/heron heron=lislab3morris/heron:${DRONE_COMMIT_SHA} --namespace=heron || exit 1"
   - "kubectl rollout status deployment/heron --namespace=heron || exit 1"
   - "echo Deployment success!"
-  "image": "sinlead/drone-kubectl"
+  "image": "bitnami/kubectl"
   "name": "deploy to k8s"
-  "settings":
-    "kubernetes_cert":
-      "from_secret": "k8s-ca"
-    "kubernetes_server":
-      "from_secret": "k8s-server"
-    "kubernetes_token":
-      "from_secret": "k8s-token"
-    "namespace": "heron"
-    "startTimeout": 240
 "trigger":
   "branch":
   - "master"
   "event":
   - "push"
 "type": "kubernetes"
----
-"get":
-  "name": "value"
-  "path": "k8s-server"
-"kind": "secret"
-"name": "k8s-server"
----
-"get":
-  "name": "value"
-  "path": "k8s-token"
-"kind": "secret"
-"name": "k8s-token"
----
-"get":
-  "name": "value"
-  "path": "k8s-ca"
-"kind": "secret"
-"name": "k8s-ca"
 ---
 "get":
   "name": "value"

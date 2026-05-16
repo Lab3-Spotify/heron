@@ -20,6 +20,11 @@ export const clearTokens = (): void => {
   sessionStorage.removeItem('refresh_token')
 }
 
+export const RESPONSE_CODE = {
+  SUCCESS: 2000,
+  REAUTH_REQUIRED: 6003,
+} as const
+
 // API 響應類型定義
 export interface ApiResponse<T = any> {
   code: number
@@ -138,6 +143,13 @@ export const getSpotifyToken = async (): Promise<ApiResponse<SpotifyTokenRespons
   return apiRequest<SpotifyTokenResponse>('spotifyToken', {
     method: 'GET',
   })
+}
+
+export const redirectToSpotifyReauth = async (): Promise<void> => {
+  const authResponse = await getSpotifyAuthUrl()
+  if (authResponse.data?.spotify_authorize_url) {
+    window.location.href = authResponse.data.spotify_authorize_url
+  }
 }
 
 // 處理 Spotify OAuth 授權碼 API
