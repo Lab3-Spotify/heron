@@ -56,23 +56,12 @@
             <div class="flex items-center space-x-3">
               <div :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
-                currentStep >= 1 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
+                currentStep >= 2 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
               ]">
                 1
               </div>
-              <span :class="currentStep >= 1 ? 'text-white' : 'text-gray-400'">
-                輸入 Email 並登入
-              </span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div :class="[
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
-                currentStep >= 2 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
-              ]">
-                2
-              </div>
               <span :class="currentStep >= 2 ? 'text-white' : 'text-gray-400'">
-                完成 Spotify 授權
+                輸入 Email 並登入
               </span>
             </div>
             <div class="flex items-center space-x-3">
@@ -80,10 +69,10 @@
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
                 currentStep >= 4 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
               ]">
-                3
+                2
               </div>
               <span :class="currentStep >= 4 ? 'text-white' : 'text-gray-400'">
-                提供 Discover Weekly 播放清單
+                完成 Spotify 授權
               </span>
             </div>
             <div class="flex items-center space-x-3">
@@ -91,9 +80,20 @@
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
                 currentStep >= 5 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
               ]">
-                4
+                3
               </div>
               <span :class="currentStep >= 5 ? 'text-white' : 'text-gray-400'">
+                提供 Discover Weekly 播放清單
+              </span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div :class="[
+                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
+                currentStep >= 6 ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400'
+              ]">
+                4
+              </div>
+              <span :class="currentStep >= 6 ? 'text-white' : 'text-gray-400'">
                 提供最愛播放清單
               </span>
             </div>
@@ -194,108 +194,6 @@
           </div>
         </div>
 
-        <!-- 步驟 3: 驗證授權 -->
-        <div v-if="currentStep === 3" class="bg-gray-900 rounded-lg p-6 fade-element" data-delay="600" :class="{ 'fade-in': currentStep === 3 }">
-
-          
-          <div class="space-y-4">
-            <div v-if="isLoading" class="text-center py-8">
-              <svg class="animate-spin h-12 w-12 text-green-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <p class="text-gray-400">驗證中...</p>
-            </div>
-            
-
-            
-
-            
-            <!-- 成功內容 -->
-            <div v-if="authStatus === 'success'" class="text-center py-8 success-completion">
-              <!-- 成功動畫圖示 -->
-              <div class="text-green-500 mb-6 success-icon-container">
-                <div class="success-checkmark">
-                  <svg class="w-20 h-20 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-
-              </div>
-              
-              <!-- 成功標題 -->
-              <h4 class="text-3xl font-bold text-white mb-4 success-title">
-                🎉 設定完成！
-              </h4>
-              
-              <!-- 成功訊息 -->
-              <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-6 mb-6 success-message">
-                <p class="text-green-300 text-lg font-semibold mb-3">
-                  恭喜您！Spotify 授權已成功完成
-                </p>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                  您現在已經完成了所有必要的設定步驟，可以開始參與我們的音樂熟悉度實驗了。
-                </p>
-              </div>
-              
-              <!-- 後續說明 -->
-              <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6 mb-6 next-steps">
-                <h5 class="text-blue-300 font-semibold mb-3 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                  接下來會發生什麼？
-                </h5>
-                <ul class="text-gray-300 text-sm space-y-2">
-                  <li class="flex items-start">
-                    <span class="text-blue-400 mr-2">•</span>
-                    <span>我們會為您準備個人化的音樂播放清單</span>
-                  </li>
-                  <li class="flex items-start">
-                    <span class="text-blue-400 mr-2">•</span>
-                    <span>您將聆聽一系列音樂並進行熟悉度評分</span>
-                  </li>
-                  <li class="flex items-start">
-                    <span class="text-blue-400 mr-2">•</span>
-                    <span>整個實驗大約需要 15-20 分鐘完成</span>
-                  </li>
-                  <li class="flex items-start">
-                    <span class="text-blue-400 mr-2">•</span>
-                    <span>您可以隨時暫停或重新開始實驗</span>
-                  </li>
-                </ul>
-              </div>
-              
-
-            </div>
-            
-            <div v-else-if="authStatus === 'error'" class="text-center py-8">
-              <div class="text-red-500 mb-4">
-                <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <h4 class="text-xl font-semibold text-white mb-2">驗證失敗</h4>
-              <p class="text-gray-400 mb-6">{{ errorMessage }}</p>
-              
-              <div class="space-y-3">
-                <button
-                  @click="retryVerification"
-                  class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  🔄 重新驗證
-                </button>
-                
-                <button
-                  @click="goBackToStep2"
-                  class="w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  ← 重新授權
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 步驟 4: Discover Weekly 播放清單 -->
         <div v-if="currentStep === 4" class="bg-gray-900 rounded-lg p-6 fade-element" data-delay="600">
@@ -841,7 +739,7 @@ import { ref, onMounted, nextTick } from 'vue'
 // import { useRouter } from 'vue-router'
 import { loginUser, getSpotifyAuthUrl, getSpotifyToken, validatePlaylist, importPlaylist, cachePlaylistOrder, getAccessToken, checkPlaylist, RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
 import ParticleBackground from '@/components/ParticleBackground.vue'
-import { setCurrentUserEmail, setUserData, getUserData, USER_DATA_KEYS } from '@/utils/userStorage'
+import { setCurrentUserEmail, setUserData, USER_DATA_KEYS } from '@/utils/userStorage'
 
 // const router = useRouter()
 
@@ -849,7 +747,6 @@ import { setCurrentUserEmail, setUserData, getUserData, USER_DATA_KEYS } from '@
 const currentStep = ref(1)
 const email = ref('')
 const isLoading = ref(false)
-const authStatus = ref<'loading' | 'success' | 'error'>('loading')
 const showEmailFormatError = ref(false)
 const showParticleBackground = ref(false)
 const discoverWeeklyId = ref('')
@@ -874,7 +771,6 @@ const VALIDATE_THROTTLE_MS = 0 // 暫時設為 0 秒，之後改為 10000 (10 �
 // Toast 通知
 const toastMessage = ref<string>('')
 const toastType = ref<'info' | 'error'>('info')
-const errorMessage = ref<string>('')
 
 // 拖曳狀態
 const draggedIndex = ref<number | null>(null)
@@ -945,12 +841,6 @@ const handleEmailLogin = async () => {
         console.log('Checking if Spotify token already exists...')
         const tokenResponse = await getSpotifyToken()
 
-        if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
-          console.warn('Reauth required, redirecting to Spotify OAuth...')
-          redirectToSpotifyReauth()
-          return
-        }
-
         if (tokenResponse.code === RESPONSE_CODE.SUCCESS && tokenResponse.data &&
             (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token)) {
           // 已經有 token，不需要重新授權，直接檢查步驟完成狀態
@@ -962,6 +852,7 @@ const handleEmailLogin = async () => {
         // 沒有 token，需要進行 Spotify 授權
         console.log('No Spotify token found, starting authorization...')
       } catch (tokenCheckError) {
+        if (tokenCheckError instanceof Error && tokenCheckError.message === 'REAUTH_REDIRECT') throw tokenCheckError
         console.log('Token check error, proceeding with authorization:', tokenCheckError)
       }
 
@@ -998,6 +889,7 @@ const handleEmailLogin = async () => {
       throw new Error(response.msg || '登入失敗')
     }
   } catch (error) {
+    if (error instanceof Error && error.message === 'REAUTH_REDIRECT') return
     const errorMsg = error instanceof Error ? error.message : '登入失敗，請檢查 Email 地址'
     showToast(errorMsg, 3000, 'error')
     isLoading.value = false
@@ -1005,80 +897,6 @@ const handleEmailLogin = async () => {
 }
 
 
-
-// 驗證授權狀態（第三步：檢查後端是否成功儲存 Spotify token）
-const verifyAuthStatus = async () => {
-  isLoading.value = true
-  authStatus.value = 'loading'
-  
-  try {
-    // 檢查用戶資料中是否已經有 Spotify access token
-    const existingToken = getUserData<string>(USER_DATA_KEYS.SPOTIFY_ACCESS_TOKEN)
-
-    if (existingToken) {
-      // 如果已經有 token，直接設定為成功並強制觸發慶祝
-      await forceTriggerCelebration()
-    } else {
-      // 如果沒有 token，調用 API 獲取
-      const response = await getSpotifyToken()
-
-      if (response.code === RESPONSE_CODE.REAUTH_REQUIRED) {
-        console.warn('Reauth required, redirecting to Spotify OAuth...')
-        redirectToSpotifyReauth()
-        return
-      }
-
-      if (response.code === RESPONSE_CODE.SUCCESS) {
-        // 檢查回應中是否有 data 和 access_token
-        if (response.data && response.data.access_token && response.data.access_token.trim() !== '') {
-          // 成功獲得了有效的 Spotify token，表示授權成功
-
-          // 儲存到用戶資料
-          setUserData(USER_DATA_KEYS.SPOTIFY_ACCESS_TOKEN, response.data.access_token)
-
-          // 強制觸發慶祝效果
-          await forceTriggerCelebration()
-        } else {
-          // API 回應成功但沒有有效的 access_token
-          throw new Error('Spotify token 無效或為空，請重新授權')
-        }
-      } else {
-        throw new Error(response.msg || '無法獲取 Spotify token')
-      }
-    }
-  } catch (error) {
-    authStatus.value = 'error'
-    const errorMsg = error instanceof Error ? error.message : 'Spotify 授權未完成，請重新授權'
-    showToast(errorMsg, 3000, 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// 強制觸發慶祝效果（不再使用，改為直接跳轉到步驟 4）
-const forceTriggerCelebration = async () => {
-  // 設定成功狀態
-  authStatus.value = 'success'
-  await nextTick()
-}
-
-// 重新驗證
-const retryVerification = () => {
-  verifyAuthStatus()
-}
-
-// 回到步驟 2
-const goBackToStep2 = () => {
-  currentStep.value = 2
-  authStatus.value = 'loading'
-  // 不要清除錯誤訊息
-}
-
-// 完成授權
-// const finishAuth = () => {
-//   // 跳轉到實驗開始頁面
-//   router.replace('/experiment-start')
-// }
 
 // 提取純粹的播放清單 ID（移除 URL 和查詢參數）
 const extractPlaylistId = (input: string): string => {
@@ -1301,7 +1119,6 @@ const handlePlaylistImport = async (type: 'discover_weekly' | 'member_favorite')
       memberFavoriteValidationErrors.value = []
       memberFavoriteIsValid.value = false
 
-      await showCompletionScreen()
     }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : '導入播放清單時發生錯誤'
@@ -1309,14 +1126,6 @@ const handlePlaylistImport = async (type: 'discover_weekly' | 'member_favorite')
   } finally {
     isImporting.value = false
   }
-}
-
-// 顯示完成畫面
-const showCompletionScreen = async () => {
-  authStatus.value = 'success'
-  await nextTick()
-
-  // 不再自動跳轉，讓使用者停留在完成畫面
 }
 
 // 處理歌單滾動，防止觸發外部滾動
@@ -1430,6 +1239,7 @@ const checkStepCompletion = async () => {
                         (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token))
       console.log('Spotify token API check:', tokenResponse, 'hasSpotifyToken:', hasSpotifyToken)
     } catch (error) {
+      if (error instanceof Error && error.message === 'REAUTH_REDIRECT') throw error
       console.log('Spotify token check error:', error)
       hasSpotifyToken = false
     }
@@ -1494,8 +1304,8 @@ const checkStepCompletion = async () => {
       })
     }, 50)
   } catch (error) {
+    if (error instanceof Error && error.message === 'REAUTH_REDIRECT') return
     console.error('檢查步驟完成狀態時發生錯誤:', error)
-    // 發生錯誤時，從步驟 1 開始
     currentStep.value = 1
   }
 }
