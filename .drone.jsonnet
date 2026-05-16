@@ -36,44 +36,12 @@ local buildPipeline = {
       image: "plugins/docker",
       settings: {
         repo:       VALUES.DOCKERHUB_IMAGE,
-        tags:       ["test-${DRONE_COMMIT_SHA}"],
+        tags:       ["latest", "${DRONE_COMMIT_SHA}"],
         username:   SECRET.DOCKER_USERNAME,
         password:   SECRET.DOCKER_PASSWORD,
         cache_from: [VALUES.DOCKERHUB_IMAGE + ":latest"],
         buildkit:   true,
-        build_args: [
-          "WALRUS_API_BASE_URL=https://walrus.lab3.website",
-          "ENV=staging",
-          "APP_TITLE=Heron",
-          "BUILDKIT_INLINE_CACHE=1",
-        ],
       },
-    },
-  ],
-};
-
-// ── publish ───────────────────────────────────────────────
-local publishPipeline = {
-  kind: "pipeline",
-  type: "kubernetes",
-  name: "heron-publish",
-  node: node,
-  depends_on: ["heron-build"],
-  trigger: trigger,
-  steps: [
-    {
-      name:  "promote",
-      image: "regclient/regctl:edge-alpine",
-      environment: {
-        DOCKER_USERNAME: SECRET.DOCKER_USERNAME,
-        DOCKER_PASSWORD: SECRET.DOCKER_PASSWORD,
-      },
-      commands: [
-        "regctl registry login registry-1.docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD",
-        "regctl image copy %(img)s:test-${DRONE_COMMIT_SHA} %(img)s:${DRONE_COMMIT_SHA}" % { img: VALUES.DOCKERHUB_IMAGE },
-        "regctl image copy %(img)s:test-${DRONE_COMMIT_SHA} %(img)s:latest"              % { img: VALUES.DOCKERHUB_IMAGE },
-        "regctl tag delete %s:test-${DRONE_COMMIT_SHA}"                                  % VALUES.DOCKERHUB_IMAGE,
-      ],
     },
   ],
 };
@@ -84,7 +52,7 @@ local deployPipeline = {
   type: "kubernetes",
   name: "heron-deploy",
   node: node,
-  depends_on: ["heron-publish"],
+  depends_on: ["heron-build"],
   trigger: trigger,
   steps: [
     {
@@ -122,7 +90,6 @@ std.join("\n---\n", [
   std.manifestYamlDoc(p)
   for p in [
     buildPipeline,
-    publishPipeline,
     deployPipeline,
     secret_docker_user,
     secret_docker_pass,

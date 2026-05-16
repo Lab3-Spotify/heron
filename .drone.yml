@@ -6,11 +6,6 @@
 - "image": "plugins/docker"
   "name": "build"
   "settings":
-    "build_args":
-    - "WALRUS_API_BASE_URL=https://walrus.lab3.website"
-    - "ENV=staging"
-    - "APP_TITLE=Heron"
-    - "BUILDKIT_INLINE_CACHE=1"
     "buildkit": true
     "cache_from":
     - "lislab3morris/heron:latest"
@@ -18,7 +13,8 @@
       "from_secret": "docker-password"
     "repo": "lislab3morris/heron"
     "tags":
-    - "test-${DRONE_COMMIT_SHA}"
+    - "latest"
+    - "${DRONE_COMMIT_SHA}"
     "username":
       "from_secret": "docker-username"
 "trigger":
@@ -30,32 +26,6 @@
 ---
 "depends_on":
 - "heron-build"
-"kind": "pipeline"
-"name": "heron-publish"
-"node":
-  "repo": "Lab3-Spotify-heron"
-"steps":
-- "commands":
-  - "regctl registry login registry-1.docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-  - "regctl image copy lislab3morris/heron:test-${DRONE_COMMIT_SHA} lislab3morris/heron:${DRONE_COMMIT_SHA}"
-  - "regctl image copy lislab3morris/heron:test-${DRONE_COMMIT_SHA} lislab3morris/heron:latest"
-  - "regctl tag delete lislab3morris/heron:test-${DRONE_COMMIT_SHA}"
-  "environment":
-    "DOCKER_PASSWORD":
-      "from_secret": "docker-password"
-    "DOCKER_USERNAME":
-      "from_secret": "docker-username"
-  "image": "regclient/regctl:edge-alpine"
-  "name": "promote"
-"trigger":
-  "branch":
-  - "master"
-  "event":
-  - "push"
-"type": "kubernetes"
----
-"depends_on":
-- "heron-publish"
 "kind": "pipeline"
 "name": "heron-deploy"
 "node":
