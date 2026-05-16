@@ -3,7 +3,7 @@ import type { ApiResponse } from '@/types'
 
 // 創建 axios 實例
 const api = axios.create({
-  baseURL: import.meta.env.WALRUS_API_BASE_URL || '/api',
+  baseURL: window.CONFIG?.WALRUS_API_BASE_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
