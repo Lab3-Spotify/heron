@@ -30,7 +30,7 @@
 | 🧪 **實驗流程管理** | 支援多階段實驗設計（Stage 1 / Stage 2） |
 | 📊 **滿意度問卷** | 播放後即時收集使用者回饋 |
 | 🌐 **OAuth 認證** | Spotify OAuth 2.0 授權流程 |
-| 💾 **本地狀態持久化** | 使用 localStorage 保存實驗進度 |
+| 💾 **本地狀態持久化** | 使用 sessionStorage 保存實驗進度 |
 | 📱 **響應式設計** | 支援桌面與行動裝置 |
 | 🐳 **容器化部署** | Docker + Nginx 生產環境部署 |
 | 🚀 **CI/CD 自動化** | Drone CI 自動建置並部署至 Kubernetes |
@@ -131,30 +131,31 @@ heron/
 │   │   └── ThankYou.vue          # 感謝頁
 │   ├── stores/
 │   │   ├── experiment.ts         # 實驗階段狀態管理
-│   │   ├── spotifyPlayer.ts      # Spotify 播放器單例
-│   │   └── counter.ts            # 計數器 Store
+│   │   └── spotifyPlayer.ts      # Spotify 播放器單例
 │   ├── services/
 │   │   └── api.ts                # API 服務層
 │   ├── utils/
 │   │   ├── api.ts                # HTTP 請求工具
-│   │   ├── userStorage.ts        # LocalStorage 管理
+│   │   ├── userStorage.ts        # sessionStorage 管理
 │   │   └── index.ts              # 通用工具函數
 │   ├── types/
 │   │   └── index.ts              # TypeScript 型別定義
 │   ├── config/
-│   │   └── environment.ts        # 環境設定
+│   │   └── environment.ts        # 環境設定（讀取 window.CONFIG）
 │   ├── router/
 │   │   └── index.ts              # 路由配置
 │   ├── App.vue                   # 根元件
 │   ├── main.ts                   # 應用程式入口
 │   └── style.css                 # 全域樣式
-├── env/
-│   ├── .env.example              # 環境變數範例
-│   └── .env.local                # 本地環境設定
+├── public/
+│   ├── config.js                 # 本地開發用 runtime 設定
+│   └── favicon.svg               # 應用程式圖示
+├── config.js.template            # 容器啟動時 envsubst 的模板
+├── entrypoint.sh                 # 容器入口：注入 config.js 後啟動 Nginx
 ├── Dockerfile                    # 多階段建構配置
 ├── nginx.conf                    # Nginx 設定
-├── .drone.yml                    # Drone CI/CD 流程
-└── vite.config.ts                # Vite 建構配置
+├── .drone.jsonnet                # Drone CI/CD 設定來源（jsonnet）
+└── .drone.yml                    # Drone CI/CD 流程（由 jsonnet 生成）
 ```
 
 ---
@@ -174,31 +175,25 @@ heron/
 npm install
 ```
 
-### 2. 環境變數設定
+### 2. 本地環境設定
 
-```bash
-cp env/.env.example env/.env.local
-```
+編輯 `public/config.js`：
 
-編輯 `env/.env.local`：
-
-```env
-WALRUS_API_BASE_URL=https://your-walrus-api.example.com
-ENV=local
-APP_TITLE=Heron
+```js
+window.CONFIG = {
+  WALRUS_API_BASE_URL: "http://localhost:8000",
+  ENV: "local",
+  APP_TITLE: "LISLab3 Spotify Experiment"
+};
 ```
 
 ### 3. 啟動開發伺服器
 
 ```bash
-# Local 環境
-npm run dev:local
-
-# 預設開發模式
 npm run dev
 ```
 
-應用程式將在 `http://localhost:3000` 啟動。
+應用程式將在 `http://localhost:5173` 啟動。
 
 ---
 
@@ -206,12 +201,10 @@ npm run dev
 
 ```bash
 # 開發
-npm run dev          # 預設開發模式
-npm run dev:local    # Local 環境
+npm run dev          # 開發模式
 
 # 建構
 npm run build        # 生產建構
-npm run build:local  # Local 環境建構
 
 # 品質工具
 npm run lint         # ESLint 檢查
@@ -228,17 +221,19 @@ npm run preview      # 預覽建構結果
 ### 本地建構
 
 ```bash
-docker build \
-  --build-arg WALRUS_API_BASE_URL=https://your-api.example.com \
-  --build-arg ENV=staging \
-  --build-arg APP_TITLE=Heron \
-  -t heron:latest .
+docker build -t heron:latest .
 ```
 
 ### 啟動容器
 
+環境變數在容器啟動時透過 `entrypoint.sh` 注入至 `config.js`：
+
 ```bash
-docker run -d -p 80:80 heron:latest
+docker run -d -p 80:80 \
+  -e WALRUS_API_BASE_URL=https://walrus.lab3.website \
+  -e ENV=staging \
+  -e APP_TITLE="LISLab3 Spotify Experiment" \
+  heron:latest
 ```
 
 ### Docker 多階段建構流程
@@ -253,12 +248,14 @@ graph LR
     subgraph Stage2 ["Stage 2: Production (nginx:alpine)"]
         S2A[複製 nginx.conf]
         S2B[複製 /app/dist\n→ /usr/share/nginx/html]
-        S2C[EXPOSE 80\n啟動 Nginx]
+        S2C[複製 config.js.template]
+        S2D[entrypoint.sh\nenvsubst → config.js\n啟動 Nginx]
     end
 
     S1C --> S2B
-    S2A --> S2C
-    S2B --> S2C
+    S2A --> S2D
+    S2B --> S2D
+    S2C --> S2D
 
     style Stage1 fill:#339af022,stroke:#339af0
     style Stage2 fill:#51cf6622,stroke:#51cf66
@@ -280,13 +277,15 @@ sequenceDiagram
 
     Dev->>Git: git push origin master
     Git->>Drone: webhook 觸發
-    Drone->>Drone: 建置 Docker Image<br/>(含 BuildKit 快取)
+    Drone->>Drone: 建置 Docker Image<br/>(heron-build)
     Drone->>Registry: push :latest + :COMMIT_SHA
-    Drone->>K8s: kubectl set image<br/>heron=lislab3morris/heron:SHA
-    K8s->>K8s: Rolling Update
+    Drone->>K8s: kubectl rollout restart<br/>(heron-deploy)
+    K8s->>K8s: Rolling Update（拉取 :latest）
     K8s-->>Drone: rollout status ✅
-    Drone-->>Dev: 部署成功通知
+    Drone->>Registry: 清理舊 SHA tags
 ```
+
+> CI/CD 設定以 `.drone.jsonnet` 為來源，執行 `jsonnet .drone.jsonnet | yq -P - > .drone.yml` 重新生成。
 
 ---
 
@@ -299,7 +298,6 @@ graph TB
     subgraph Stores ["Pinia Stores"]
         ES["experimentStore\n- currentStage: 1 | 2\n- setStage()\n- nextStage()\n- resetStage()"]
         SP["spotifyPlayerStore\n- spotifyPlayer\n- deviceId\n- isPlayerReady\n- initializePlayer()\n- disconnectPlayer()"]
-        CO["counterStore\n- count\n- increment()"]
     end
 
     subgraph Views ["Views"]
@@ -313,12 +311,11 @@ graph TB
     PS --> ES
     ES2 --> ES
 
-    SP -.-> |localStorage| LS[("💾 Local\nStorage")]
-    ES -.-> |experimentStage| LS
+    SP -.-> |sessionStorage| SS[("💾 Session\nStorage")]
+    ES -.-> |experimentStage| SS
 
     style ES fill:#646CFF22,stroke:#646CFF
     style SP fill:#1DB95422,stroke:#1DB954
-    style CO fill:#FF636322,stroke:#FF6363
 ```
 
 ---
@@ -340,13 +337,17 @@ graph TB
 
 ---
 
-## 🔒 環境變數
+## 🔒 Runtime 設定
+
+環境變數不在 build time 注入，而是容器啟動時透過 `envsubst` 寫入 `config.js`，前端讀取 `window.CONFIG`。
 
 | 變數名稱 | 說明 | 範例 |
 |----------|------|------|
 | `WALRUS_API_BASE_URL` | Walrus 後端 API 位址 | `https://walrus.lab3.website` |
 | `ENV` | 執行環境 | `local` / `staging` |
-| `APP_TITLE` | 應用程式標題 | `Heron` |
+| `APP_TITLE` | 應用程式標題 | `LISLab3 Spotify Experiment` |
+
+本地開發直接編輯 `public/config.js`，此檔案不會被打包進 dist。
 
 ---
 
