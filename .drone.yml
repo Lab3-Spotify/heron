@@ -1,10 +1,10 @@
 "kind": "pipeline"
-"name": "heron-deploy"
+"name": "heron-build"
 "node":
   "repo": "Lab3-Spotify-heron"
 "steps":
 - "image": "plugins/docker"
-  "name": "build and push docker image"
+  "name": "build"
   "settings":
     "build_args":
     - "WALRUS_API_BASE_URL=https://walrus.lab3.website"
@@ -18,16 +18,68 @@
       "from_secret": "docker-password"
     "repo": "lislab3morris/heron"
     "tags":
-    - "latest"
-    - "${DRONE_COMMIT_SHA}"
+    - "test-${DRONE_COMMIT_SHA}"
     "username":
       "from_secret": "docker-username"
+"trigger":
+  "branch":
+  - "master"
+  "event":
+  - "push"
+"type": "kubernetes"
+---
+"depends_on":
+- "heron-build"
+"kind": "pipeline"
+"name": "heron-publish"
+"node":
+  "repo": "Lab3-Spotify-heron"
+"steps":
 - "commands":
-  - "kubectl set image deployment/heron heron=lislab3morris/heron:${DRONE_COMMIT_SHA} --namespace=heron || exit 1"
-  - "kubectl rollout status deployment/heron --namespace=heron || exit 1"
-  - "echo Deployment success!"
+  - "regctl registry login registry-1.docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+  - "regctl image copy lislab3morris/heron:test-${DRONE_COMMIT_SHA} lislab3morris/heron:${DRONE_COMMIT_SHA}"
+  - "regctl image copy lislab3morris/heron:test-${DRONE_COMMIT_SHA} lislab3morris/heron:latest"
+  - "regctl tag delete lislab3morris/heron:test-${DRONE_COMMIT_SHA}"
+  "environment":
+    "DOCKER_PASSWORD":
+      "from_secret": "docker-password"
+    "DOCKER_USERNAME":
+      "from_secret": "docker-username"
+  "image": "regclient/regctl:edge-alpine"
+  "name": "promote"
+"trigger":
+  "branch":
+  - "master"
+  "event":
+  - "push"
+"type": "kubernetes"
+---
+"depends_on":
+- "heron-publish"
+"kind": "pipeline"
+"name": "heron-deploy"
+"node":
+  "repo": "Lab3-Spotify-heron"
+"steps":
+- "commands":
+  - "kubectl rollout restart deployment/heron -n heron || exit 1"
   "image": "bitnami/kubectl"
-  "name": "deploy to k8s"
+  "name": "deploy"
+- "commands":
+  - "kubectl rollout status deployment/heron -n heron --timeout=120s || exit 1"
+  "image": "bitnami/kubectl"
+  "name": "verify"
+- "commands":
+  - "apk add --no-cache curl jq"
+  - "sh ci/cleanup-dockerhub.sh"
+  "environment":
+    "DOCKER_PASSWORD":
+      "from_secret": "docker-password"
+    "DOCKER_USERNAME":
+      "from_secret": "docker-username"
+    "REPO_PATH": "lislab3morris/heron"
+  "image": "alpine:3"
+  "name": "cleanup-old-tags"
 "trigger":
   "branch":
   - "master"
