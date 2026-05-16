@@ -20,6 +20,11 @@ export const clearTokens = (): void => {
   sessionStorage.removeItem('refresh_token')
 }
 
+export const clearSpotifyCache = (): void => {
+  sessionStorage.removeItem('spotifyAccessToken')
+  localStorage.removeItem('trackInfoCache_v3')
+}
+
 export const RESPONSE_CODE = {
   SUCCESS: 2000,
   REAUTH_REQUIRED: 6003,
@@ -67,7 +72,8 @@ export interface LoginRequest {
 // 通用 API 請求函數
 const apiRequest = async <T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  skipReauth = false
 ): Promise<ApiResponse<T>> => {
   const url = endpoint.startsWith('http') ? endpoint : getApiUrl(endpoint as keyof typeof API_ENDPOINTS)
   
@@ -113,6 +119,11 @@ const apiRequest = async <T>(
     
     const data: ApiResponse<T> = await response.json()
     console.log('Response data:', data)
+
+    if (!skipReauth && data.code === RESPONSE_CODE.REAUTH_REQUIRED) {
+      await redirectToSpotifyReauth()
+    }
+
     return data
   } catch (error) {
     console.error('API request failed:', error)
@@ -132,9 +143,7 @@ export const loginUser = async (email: string): Promise<ApiResponse<LoginRespons
 
 // Spotify OAuth 授權 API（第二步：獲取授權 URL）
 export const getSpotifyAuthUrl = async (): Promise<ApiResponse<SpotifyAuthResponse>> => {
-  return apiRequest<SpotifyAuthResponse>('spotifyAuth', {
-    method: 'GET',
-  })
+  return apiRequest<SpotifyAuthResponse>('spotifyAuth', { method: 'GET' }, true)
 }
 
 
@@ -146,6 +155,7 @@ export const getSpotifyToken = async (): Promise<ApiResponse<SpotifyTokenRespons
 }
 
 export const redirectToSpotifyReauth = async (): Promise<void> => {
+  clearSpotifyCache()
   const authResponse = await getSpotifyAuthUrl()
   if (authResponse.data?.spotify_authorize_url) {
     window.location.href = authResponse.data.spotify_authorize_url
