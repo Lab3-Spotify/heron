@@ -4,6 +4,8 @@ import App from './App.vue'
 import router from './router'
 import './style.css'
 
+document.title = window.CONFIG?.APP_TITLE || 'LISLab3 Spotify Experiment'
+
 const app = createApp(App)
 
 app.use(createPinia())

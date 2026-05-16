@@ -1,0 +1,5 @@
+window.CONFIG = {
+  WALRUS_API_BASE_URL: "${WALRUS_API_BASE_URL}",
+  ENV: "${ENV}",
+  APP_TITLE: "${APP_TITLE}"
+};
