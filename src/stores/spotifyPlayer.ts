@@ -141,7 +141,7 @@ export const useSpotifyPlayerStore = defineStore('spotifyPlayer', () => {
             }
           }
         },
-        volume: 0.5
+        volume: 0.2
       })
 
       // 錯誤處理
