@@ -100,7 +100,6 @@ export const USER_DATA_KEYS = {
   PROXY_ACCOUNT_DATA: 'proxyAccountData',
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
-  SPOTIFY_ACCESS_TOKEN: 'spotifyAccessToken',
   FROM_PRE_AUTH: 'fromPreAuth',
   FROM_WELCOME: 'fromWelcome',
 } as const

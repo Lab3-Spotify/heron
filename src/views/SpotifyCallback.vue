@@ -82,7 +82,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getUserData, setUserData, USER_DATA_KEYS } from '@/utils/userStorage'
-import { getSpotifyToken, RESPONSE_CODE, redirectToSpotifyReauth } from '@/services/api'
+import { getSpotifyToken, RESPONSE_CODE } from '@/services/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -124,21 +124,10 @@ const handleAuthCallback = async () => {
     try {
       const tokenResponse = await getSpotifyToken()
 
-      if (tokenResponse.code === RESPONSE_CODE.REAUTH_REQUIRED) {
-        console.warn('Reauth required after callback, redirecting to Spotify OAuth...')
-        await redirectToSpotifyReauth()
-        return
-      }
-
       if (tokenResponse.code === RESPONSE_CODE.SUCCESS && tokenResponse.data &&
           (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token)) {
-        // 授權成功，有 token
         authStatus.value = 'success'
         console.log('Spotify token exists, authorization successful')
-
-        // 儲存 access token
-        const accessToken = tokenResponse.data.access_token || tokenResponse.data.spotify_access_token
-        setUserData(USER_DATA_KEYS.SPOTIFY_ACCESS_TOKEN, accessToken)
 
         // 延遲跳轉，讓用戶看到成功訊息
         setTimeout(() => {
@@ -164,6 +153,7 @@ const handleAuthCallback = async () => {
         throw new Error('No Spotify token found')
       }
     } catch (tokenError) {
+      if (tokenError instanceof Error && tokenError.message === 'REAUTH_REDIRECT') return
       console.error('Failed to get Spotify token:', tokenError)
       authStatus.value = 'error'
       errorMessage.value = '無法獲取 Spotify 授權，請重新嘗試'
@@ -203,6 +193,7 @@ const retryAuthorization = async () => {
     // 重新執行授權流程
     await handleAuthCallback()
   } catch (error) {
+    if (error instanceof Error && error.message === 'REAUTH_REDIRECT') return
     console.error('Retry failed:', error)
     authStatus.value = 'error'
     errorMessage.value = '重新嘗試失敗，請檢查網路連線或稍後再試'
