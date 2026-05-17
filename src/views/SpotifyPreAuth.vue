@@ -837,9 +837,10 @@ const handleEmailLogin = async () => {
       setUserData(USER_DATA_KEYS.FROM_PRE_AUTH, true)
 
       // 登入成功後，先檢查是否已有 Spotify token
+      // skipReauth=true：token 無效時不跳轉，直接往下走 OAuth 流程
       try {
         console.log('Checking if Spotify token already exists...')
-        const tokenResponse = await getSpotifyToken()
+        const tokenResponse = await getSpotifyToken(true)
 
         if (tokenResponse.code === RESPONSE_CODE.SUCCESS && tokenResponse.data &&
             (tokenResponse.data.access_token || tokenResponse.data.spotify_access_token)) {
@@ -849,10 +850,9 @@ const handleEmailLogin = async () => {
           return
         }
 
-        // 沒有 token，需要進行 Spotify 授權
-        console.log('No Spotify token found, starting authorization...')
+        // token 無效或不存在，進行 Spotify 授權
+        console.log('No valid Spotify token found, starting authorization...')
       } catch (tokenCheckError) {
-        if (tokenCheckError instanceof Error && tokenCheckError.message === 'REAUTH_REDIRECT') throw tokenCheckError
         console.log('Token check error, proceeding with authorization:', tokenCheckError)
       }
 
