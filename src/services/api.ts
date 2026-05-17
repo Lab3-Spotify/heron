@@ -144,10 +144,8 @@ export const getSpotifyAuthUrl = async (): Promise<ApiResponse<SpotifyAuthRespon
 
 
 // 獲取 Spotify Token API
-export const getSpotifyToken = async (): Promise<ApiResponse<SpotifyTokenResponse>> => {
-  return apiRequest<SpotifyTokenResponse>('spotifyToken', {
-    method: 'GET',
-  })
+export const getSpotifyToken = async (skipReauth = false): Promise<ApiResponse<SpotifyTokenResponse>> => {
+  return apiRequest<SpotifyTokenResponse>('spotifyToken', { method: 'GET' }, skipReauth)
 }
 
 export const redirectToSpotifyReauth = (): never => {
