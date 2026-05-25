@@ -344,19 +344,11 @@
                 <div
                   v-for="(track, index) in discoverWeeklyTracks"
                   :key="index"
-                  draggable="true"
-                  @dragstart="handleDragStart(index, 'discover_weekly')"
-                  @dragover="handleDragOver($event, index)"
-                  @dragleave="handleDragLeave()"
-                  @drop="handleDrop($event, index, 'discover_weekly')"
-                  @dragend="handleDragEnd()"
                   :class="[
-                    'flex items-center space-x-3 p-2 rounded-lg transition-colors cursor-move',
+                    'flex items-center space-x-3 p-2 rounded-lg transition-colors',
                     track.is_duplicated
                       ? 'bg-gray-900/50 opacity-60'
                       : 'hover:bg-gray-700/50',
-                    draggedIndex === index && 'opacity-50',
-                    dragOverIndex === index && 'border-2 border-green-500'
                   ]"
                 >
                   <!-- 序號 -->
