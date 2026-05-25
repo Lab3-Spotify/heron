@@ -83,7 +83,7 @@
                 3
               </div>
               <span :class="currentStep >= 5 ? 'text-white' : 'text-gray-400'">
-                提供 Discover Weekly 播放清單
+                提供 每週新發現(Discover Weekly) 播放清單
               </span>
             </div>
             <div class="flex items-center space-x-3">
@@ -195,25 +195,26 @@
         </div>
 
 
-        <!-- 步驟 4: Discover Weekly 播放清單 -->
+        <!-- 步驟 4: 每週新發現(Discover Weekly) 播放清單 -->
         <div v-if="currentStep === 4" class="bg-gray-900 rounded-lg p-6 fade-element" data-delay="600">
-          <h3 class="text-lg font-semibold mb-4">步驟 3: Discover Weekly 播放清單</h3>
+          <h3 class="text-lg font-semibold mb-4">步驟 3: 每週新發現(Discover Weekly) 播放清單</h3>
           <p class="text-gray-400 mb-6">
-            請提供您的 Spotify Discover Weekly 播放清單。您可以直接貼上完整連結或只提供播放清單 ID。
+            請提供您的 Spotify 每週新發現(Discover Weekly) 播放清單。您可以直接貼上完整連結或只提供播放清單 ID。
           </p>
 
           <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
             <h4 class="font-semibold text-blue-400 mb-2">📋 如何準備播放清單？</h4>
             <ol class="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-              <li>在 Spotify 搜尋「<span class="text-green-400 font-semibold">Discover Weekly</span>」</li>
+              <li>建立一個全新的歌單</li>
+              <li>在 Spotify 搜尋「<span class="text-green-400 font-semibold">每週新發現(Discover Weekly)</span>」</li>
               <li>找到由 <span class="text-green-400 font-semibold">Spotify 官方</span>提供的播放清單</li>
-              <li>建立一個新的播放清單，將所有歌曲<span class="text-green-400 font-semibold">按原順序</span>複製到新播放清單中</li>
+              <li>將每週新發現(Discover Weekly) 所有歌曲，<span class="text-green-400 font-semibold">按原順序</span>複製到新播放清單中</li>
               <li>在新播放清單中點擊「分享」→「複製播放清單連結」</li>
               <li>將完整連結貼到下方輸入框（系統會自動提取 ID）</li>
             </ol>
             <div class="mt-3 space-y-2">
               <p class="text-xs text-gray-400">
-                💡 提示：請使用自建的播放清單副本，而非直接使用 Spotify 官方的 Discover Weekly
+                💡 提示：請使用自建的播放清單副本，而非直接使用 Spotify 官方的 每週新發現(Discover Weekly)
               </p>
               <p class="text-xs text-yellow-400">
                 ⚠️ 注意：系統會自動檢測並標記播放清單內部的重複歌曲，以及與其他已提供歌單重複的歌曲
@@ -227,7 +228,7 @@
           <div class="space-y-4 fade-element" data-delay="800">
             <div>
               <label for="discover-weekly-id" class="block text-sm font-medium text-gray-300 mb-2">
-                Discover Weekly 播放清單 ID 或連結
+                每週新發現(Discover Weekly) 播放清單 ID 或連結
               </label>
               <input
                 id="discover-weekly-id"
@@ -1086,8 +1087,8 @@ const handlePlaylistImport = async (type: 'discover_weekly' | 'member_favorite')
 
     // 根據類型進入下一步驟
     if (type === 'discover_weekly') {
-      // Discover Weekly 完成，進入 Member Favorite
-      showToast('Discover Weekly 播放清單導入成功！', 2000, 'info')
+      // 每週新發現(Discover Weekly) 完成，進入 Member Favorite
+      showToast('每週新發現(Discover Weekly) 播放清單導入成功！', 2000, 'info')
       currentStep.value = 5
 
       // 重置狀態
@@ -1280,10 +1281,10 @@ const checkStepCompletion = async () => {
       // 兩個都完成，顯示完成畫面
       currentStep.value = 6
     } else if (hasDiscoverWeekly) {
-      // Discover Weekly 完成，進入 Member Favorite
+      // 每週新發現(Discover Weekly) 完成，進入 Member Favorite
       currentStep.value = 5
     } else {
-      // 都未完成，進入 Discover Weekly
+      // 都未完成，進入 每週新發現(Discover Weekly)
       currentStep.value = 4
     }
 
